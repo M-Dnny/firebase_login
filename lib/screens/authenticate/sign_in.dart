@@ -12,9 +12,13 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   final AuthService _auth = AuthService();
 
+  final _formKey = GlobalKey<FormState>();
+
   // TextField State
   String email = '';
   String password = '';
+  String error = '';
+  bool signInbtn = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +31,7 @@ class _SignInState extends State<SignIn> {
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               SizedBox(height: 20),
@@ -34,6 +39,12 @@ class _SignInState extends State<SignIn> {
                 onChanged: (val) {
                   setState(() => email = val);
                 },
+                validator: (val) => val!.isEmpty
+                    ? 'Enter an Email'
+                    : !val.contains('@')
+                        ? 'Enter a Valid Email Address'
+                        : null,
+                decoration: InputDecoration(hintText: 'Enter Email'),
               ),
               SizedBox(height: 20),
               TextFormField(
@@ -41,12 +52,26 @@ class _SignInState extends State<SignIn> {
                 onChanged: (val) {
                   setState(() => password = val);
                 },
+                validator: (val) => val!.isEmpty
+                    ? 'Enter Password'
+                    : val.length < 8
+                        ? 'Enter a Strong Password'
+                        : null,
+                decoration: InputDecoration(hintText: 'Enter Password'),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  print(email);
-                  print(password);
+                  if (signInbtn) {}
+                  if (_formKey.currentState!.validate()) {
+                    dynamic result =
+                        await _auth.signinWithEmailandPassword(email, password);
+                    if (result == null) {
+                      setState(() => error = 'User Not Found!');
+                    }
+                    print(email);
+                    print(password);
+                  }
                 },
                 child: Text(
                   'Sign In',
@@ -60,7 +85,15 @@ class _SignInState extends State<SignIn> {
                   onPressed: () {
                     widget.toggleView();
                   },
-                  child: Text("Don't have an account? Register Now"))
+                  child: Text("Don't have an account? Register Now")),
+              SizedBox(height: 20),
+              Text(
+                error,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.red,
+                ),
+              ),
             ],
           ),
         ),

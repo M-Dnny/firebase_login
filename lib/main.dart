@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         StreamProvider.value(
           value: AuthService().user,
           initialData: null,
-          catchError: (FireBaseUser, CustomUser) => null,
+          catchError: (fireBaseUser, customUser) => null,
         )
       ],
       child: MaterialApp(
